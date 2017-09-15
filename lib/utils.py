@@ -18,6 +18,7 @@ def read_file_by_line(file_path):
         return f.readlines()
 
 def read_text_file(file_path):
+  logger.info("Reading {}".format(file_path))
   lines = []
   with open(text_file, "r") as f:
     for line in f:
