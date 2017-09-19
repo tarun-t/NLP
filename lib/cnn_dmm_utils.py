@@ -1,3 +1,4 @@
+import re
 import os
 import logging
 
@@ -36,3 +37,17 @@ def get_art_and_summary(story_file):
   summary = ' '.join(["%s %s %s" % (SENTENCE_START, sent, SENTENCE_END) for sent in highlights])
 
   return article, summary
+
+
+def split_data(dir_path):
+  train_data = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if re.search('(200[7-9]|201[0-4])*', f)]
+  validation_data = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if re.search('20140[1-6]*', f)]
+  test_data = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if f not in train_data and validation_data]
+
+  if not os.isdir('train_data'): os.mkdir('train_data')
+  if not os.isdir('validation_data'): os.mkdir('validation_data')
+  if not os.isdir('test_data'): os.mkdir('test_data')
+
+  os.system('mv {} train_data/'.format(' '.join(train_data)))
+  os.system('mv {} validation_data/'.format(' '.join(validation_data)'))
+  os.system('mv {} test_data/'.format(' '.join(test_data))) 
