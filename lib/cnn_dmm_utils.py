@@ -1,5 +1,6 @@
 import re
 import os
+import subprocess
 import logging
 
 from utils import read_text_file, fix_missing_period
@@ -44,16 +45,39 @@ def get_art_and_summary(story_file):
     return article, summary
 
 
-def split_data(dir_path):
-    train_data = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if re.search('(200[7-9]|201[0-4])*', f)]
-    validation_data = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if re.search('20140[1-6]*', f)]
-    test_data = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if f not in train_data and validation_data]
+def chunk_list(big_list, n):
+    """Yield successive n-sized chunks from big_list."""
+    for i in range(0, len(big_list), n):
+        yield big_list[i:i + n]
 
-    if not os.isdir('train_data'): os.mkdir('train_data')
-    if not os.isdir('validation_data'): os.mkdir('validation_data')
-    if not os.isdir('test_data'): os.mkdir('test_data')
+def move_files(src, dest):
+    try:
+        os.system('mv {} {}'.format(' '.join(src), dest))
+    except OSError as e:
+        logger.error(e)
+
+def split_data(dir_path, train_dir, valid_dir, test_dir):
+    logger.info('Directory containing data {}'.format(dir_path))
+    if not len(os.listdir(dir_path)):
+        logger.info('No data')
+        return
+    train_data = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if re.search('(200[7-9]|201[0-3]).*', f)]
+    validation_data = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if re.search('20140[1-6].*', f)]
+    test_data = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if re.search('(20140[7-9]|20141|2015).*', f)]
+
+    if not os.path.isdir(train_dir): os.mkdir(train_dir)
+    if not os.path.isdir(valid_dir): os.mkdir(valid_dir)
+    if not os.path.isdir(test_dir): os.mkdir(test_dir)
     
     logger.info('Creating Training data ...')
-    os.system('mv {} train_data/'.format(' '.join(train_data)))
-    os.system('mv {} validation_data/'.format(' '.join(validation_data)))
-    os.system('mv {} test_data/'.format(' '.join(test_data))) 
+    # split into chunks to avoid os errors
+    for small_list in chunk_list(train_data, 100):
+        move_files(small_list, train_dir)
+
+    logger.info('Creating Validation data ...')
+    for small_list in chunk_list(validation_data, 100):
+        move_files(small_list, valid_dir)
+
+    logger.info('Creating Test data ...')
+    for small_list in chunk_list(test_data, 100):
+        move_files(small_list, test_dir)
