@@ -3,7 +3,7 @@ import os
 import hashlib
 import argparse
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s:%(message)s', datefmt='%I:%M:%S %p', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # acceptable ways to end a sentence
@@ -20,7 +20,7 @@ def read_file_by_line(file_path):
 def read_text_file(file_path):
   logger.info("Reading {}".format(file_path))
   lines = []
-  with open(text_file, "r") as f:
+  with open(file_path, "r") as f:
     for line in f:
       lines.append(line.strip())
   return lines

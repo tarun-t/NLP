@@ -5,7 +5,7 @@ import logging
 
 from utils import read_text_file, fix_missing_period
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s:%(message)s', datefmt='%I:%M:%S %p', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 SENTENCE_START = '<s>'
