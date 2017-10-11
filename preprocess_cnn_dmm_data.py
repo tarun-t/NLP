@@ -3,6 +3,7 @@ import logging
 import gensim
 
 from nltk.tokenize import RegexpTokenizer
+from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 from gensim.corpora import Dictionary
 from gensim.models import HdpModel, LdaModel
@@ -108,6 +109,14 @@ def construct_dict(articles, dictionary_path=None):
         dictionary = gensim.corpora.Dictionary.load(dictionary_path)
     except:
         dictionary = create_dict(articles)
+
+def construct_dict(articles, dictionary_path=None, dict_name='cnn_dict.dict', create_new=False):
+    if create_new:
+        return create_dict(articles, dict_name)
+    try:
+        dictionary = corpora.Dictionary.load(dictionary_path)
+    except:
+        dictionary = create_dict(articles, dict_name)
     return dictionary
 
 
@@ -136,3 +145,12 @@ def preprocess_articles(articles):
     articles = lemmatize_articles(articles)
     articles = add_phrases(articles)
     return articles
+
+def construct_corpus(articles, dictionary, corpus_path=None, corpus_name='cnn_corpus.mm', create_new=False):
+    if create_new:
+        return create_corpus(articles, dictionary, corpus_name)
+    try:
+        corpus = gensim.corpora.mmcorpus.MmCorpus(corpus_path)
+    except:
+        corpus = create_corpus(articles, dictionary, corpus_name)
+    return corpus

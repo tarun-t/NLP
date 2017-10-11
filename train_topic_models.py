@@ -49,5 +49,4 @@ class TrainTopicModel(object):
             try:
                 self.model = LdaModel.load(os.path.join(MODELS_DIR, saved_model))
             except:
-                self.model = LdaModel(self.corpus, id2word=self.dictionary, num_topics=self.num_topics, passes=passes, update_every=0)
         return self.model 
