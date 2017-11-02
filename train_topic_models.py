@@ -4,7 +4,7 @@ from gensim.models import LdaModel
 
 from preprocess_cnn_dmm_data import tokenize_articles, lemmatize_articles
 from preprocess_cnn_dmm_data import construct_dict, construct_corpus
-from preprocess_cnn_dmm_data import read_stop_words, remove_stop_words, add_phrases
+from preprocess_cnn_dmm_data import read_stop_words, remove_stop_words, preprocess_articles
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s:%(message)s', datefmt='%I:%M:%S %p')
 logger = logging.getLogger(__name__)
@@ -31,11 +31,7 @@ class TrainTopicModel(object):
             self.create_corpus()
 
     def preprocess_articles(self):
-        self.articles = tokenize_articles(self.articles)
-        stop_words = read_stop_words()
-        self.articles = remove_stop_words(self.articles, stop_words)
-        self.articles = lemmatize_articles(self.articles)
-        self.articles = add_phrases(self.articles)
+        self.articles = preprocess_articles(self.articles)
 
     def create_dictionary(self):
         self.dictionary = construct_dict(self.articles, dictionary_path=self.dictionary_path)
@@ -49,4 +45,5 @@ class TrainTopicModel(object):
             try:
                 self.model = LdaModel.load(os.path.join(MODELS_DIR, saved_model))
             except:
+                self.model = LdaModel(num_topics=self.num_topics, id2word=self.dictionary, corpus=self.corpus, passes=passes)
         return self.model 
