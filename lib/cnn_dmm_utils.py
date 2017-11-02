@@ -36,13 +36,13 @@ def get_art_and_summary(story_file):
             article_lines.append(line)
 
     # Make article into a single string
-    article = ' '.join(article_lines)
+    # article = ' '.join(article_lines)
 
     # Make summary into a signle string, putting <s> and </s> tags around the sentences
-    summary = ' '.join(["%s %s %s" % (SENTENCE_START, sent, SENTENCE_END) for sent in highlights])
+    # summary = ' '.join(["%s %s %s" % (SENTENCE_START, sent, SENTENCE_END) for sent in highlights])
 
     logger.info("Article and summary for {}".format(story_file))
-    return article, summary
+    return article_lines, highlights
 
 
 def chunk_list(big_list, n):
