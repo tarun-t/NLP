@@ -6,9 +6,11 @@ import numpy as np
 
 from gensim.models import LdaModel
 from scipy.stats import entropy as kld
+from sklearn.metrics.pairwise import cosine_similarity as cs
 
 from lib.cnn_dmm_utils import chunk_list
 from train_topic_models import TrainTopicModel
+from doc2vec import doc2vec
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s:%(message)s', datefmt='%I:%M:%S %p')
 logger = logging.getLogger(__name__)
@@ -68,3 +70,36 @@ class oracle(object):
             if bool(topics & prev_topics):
                 docs_chosen.append(t_topic[0])
         return docs_chosen
+
+
+class d2v_oracle(object):
+    def __init__(self, env, threshold=.2, window=2, model_name='doc2vec.d2v', d2v_window=10, size=100, epochs=10):
+        self.model_name = model_name
+        self.env = env
+        self.threshold = threshold
+        self.window = window
+        self.d2v_window = d2v_window
+        self.size = size
+        self.epochs = epochs
+        self.model = doc2vec(model_name=self.model_name, window=self.d2v_window, size=self.size, epochs=self.epochs).model
+
+    def get_context(self, docs):
+        return [self.model.infer_vector(doc) for doc in docs]
+
+    def imp_documents(self, docs, round_no):
+        if round_no <= self.window or np.random.uniform() > .9:
+            logger.info("Resample docs")
+            return [docs[i] for i in range(len(docs))]
+        self.env.current_idx = docs[0][0]
+        context = []
+        for day in range(1,self.window+1):
+            docs = [doc[1] for doc in self.env.prev(n=day)]
+            context.extend(self.get_context(docs))
+        docs_chosen = []
+        t_docs = [(doc[0], self.model.infer_vector(doc[1])) for doc in docs]
+        for t_doc in t_docs:
+            for c in context:
+                if cs([t_doc[1], c])[0][1] >= self.threshold:
+                    docs_chosen.append(t_doc[0])
+                    break
+        return docs_chosen 
