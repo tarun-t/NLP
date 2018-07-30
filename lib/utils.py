@@ -18,7 +18,6 @@ def read_file_by_line(file_path):
         return f.readlines()
 
 def read_text_file(file_path):
-  logger.info("Reading {}".format(file_path))
   lines = []
   with open(file_path, "r") as f:
     for line in f:
@@ -43,5 +42,3 @@ def get_hex_hash(s):
     h = hashlib.sha1()
     h.update(s)
     return h.hexdigest()
-
-        

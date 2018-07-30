@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def match_files_with_urls(urls, src_path, dest_path):
-    for url in urls:
+    for i, url in enumerate(urls):
         sha1sum = get_hex_hash(url)
         fname = sha1sum+'.story'
         files = fetch_files_in_dir(dest_path) 
@@ -17,8 +17,8 @@ def match_files_with_urls(urls, src_path, dest_path):
         date = date.replace('/', '-')
         count = len([f for f in files if f.startswith(date)])
         newfilename = date +'-' + str(count) + '.story'
-        logger.info('mv %s %s' %(os.path.join(src_path, fname), \
-                                 os.path.join(dest_path, newfilename)))
+        if i%1000 == 0:
+            logger.info("{} files moved".format(i))
         os.system('mv %s %s' %(os.path.join(src_path, fname), \
                                os.path.join(dest_path, newfilename)))
         

@@ -3,5 +3,4 @@
 *.py~
 *.swp
 *data
-*ipynb
 models/

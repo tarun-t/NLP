@@ -17,7 +17,7 @@ logging.basicConfig(format='%(asctime)s %(levelname)s %(name)s:%(message)s', dat
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-DIR_PATH = 'cnn_data'
+DIR_PATH = 'data'
 MODELS_DIR = 'models/'
 STOPWORD_FILE = 'stopwords.txt'
 STOPWORD_FILE = os.path.abspath(STOPWORD_FILE)
@@ -31,6 +31,8 @@ logger.info('Creating data directories')
 split_data(DIR_PATH, TRAIN_DIR_PATH, VALIDATION_DIR_PATH, TEST_DIR_PATH)
 
 def fetch_articles_from_data(data_path):
+    '''Input: absolute path of the articles
+       Output: list of all articles''' 
     train_stories = fetch_files_in_dir(data_path)
     articles = []
     for story in sorted(train_stories):
@@ -111,12 +113,27 @@ def construct_corpus(articles, dictionary, corpus_path=None):
         corpus = create_corpus(articles, dictionary)
     return corpus
 
+
+def preprocess_articles_for_d2v(path='train_data', mode='train'):
+    '''Inputs:
+             path: absolute path of articles
+             mode: train or test'''   
+    if mode == 'train':
+        docs = fetch_articles_from_data(path)
+        docs = list(tokenize_articles(docs))
+        docs = remove_stop_words(docs)
+        tagged_docs = [TaggedDocument(doc, [idx]) for idx, doc in enumerate(self.docs)]
+        return tagged_docs
+    elif mode == 'test':
+        docs = fetch_articles_from_data(path)
+        docs = list(tokenize_articles(docs))
+        docs = remove_stop_words(docs)
+        return docs
+
+
 def preprocess_articles(articles):
     articles = list(tokenize_articles(articles))
-    print len(articles)
     articles = remove_stop_words(articles, stop_words=[])
-    print len(articles)
     articles = add_phrases(articles)
     articles = lemmatize_articles(articles)
-    print len(articles)
     return articles
